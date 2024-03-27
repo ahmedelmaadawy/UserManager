@@ -48,11 +48,15 @@ namespace User.Manager.API.Controllers
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, role);
-                    return StatusCode(StatusCodes.Status201Created, "Created successfuly");
+                    return StatusCode(201);
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Invalid UserName or password");
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.TryAddModelError(error.Code, error.Description);
+                    }
+                    return BadRequest(ModelState);
                 }
             }
             else

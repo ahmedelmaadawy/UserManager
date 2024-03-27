@@ -26,12 +26,16 @@ namespace User.Manager.API
             //For Authentication
             builder.Services.AddAuthentication(options =>
             {
+                /*This specifies that JWT Bearer authentication will be used as the default 
+                 authentication scheme for authenticating and challenging requests.*/
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
+                // instructs the middleware to save the token in the authentication properties after a successful authentication.
                 options.SaveToken = true;
+                //allows the use of HTTP (non-HTTPS) requests for token validation. 
                 options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
