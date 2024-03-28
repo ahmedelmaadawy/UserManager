@@ -74,10 +74,12 @@ namespace User.Manager.API.Controllers
             //Check if password is correct
             if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password))
             {
+                var userrole = _userManager.GetRolesAsync(user);
                 //claimlist creation
                 var authenticationClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim("uid",user.Id),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
                 var userRoles = await _userManager.GetRolesAsync(user);
@@ -104,12 +106,11 @@ namespace User.Manager.API.Controllers
             var Token = new JwtSecurityToken(
                     issuer: _configuration["JWT:ValidIssuer"],
                     audience: _configuration["JWT:ValidAudience"],
-                    expires: DateTime.Now.AddHours(3),
+                    expires: DateTime.Now.AddHours(1),
                     claims: authenticationClaims,
                     signingCredentials: new SigningCredentials(authenticationSigninKey, SecurityAlgorithms.HmacSha256)
                 );
             return Token;
-
         }
     }
 }

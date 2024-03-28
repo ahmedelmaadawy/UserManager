@@ -23,5 +23,8 @@ namespace User.Manager.API.Models
                 );
         }
         public DbSet<Product> Products { get; set; }
+        //wishlist tables
+        public DbSet<WishList> WishLists { get; set; }
+        public DbSet<WishListItem> WishListItems { get; set; }
     }
 }

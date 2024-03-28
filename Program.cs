@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 using User.Manager.API.Models;
 using User.Manager.API.Repository;
 
@@ -16,7 +17,8 @@ namespace User.Manager.API
         {
             var builder = WebApplication.CreateBuilder(args);
             var configuration = builder.Configuration;
-
+            builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
             //Dependecy Injection 
 
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -25,9 +27,11 @@ namespace User.Manager.API
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             //For Identity
+
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
             //For Authentication
             builder.Services.AddAuthentication(options =>
             {
