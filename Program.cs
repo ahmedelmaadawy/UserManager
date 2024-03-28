@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using User.Manager.API.Models;
+using User.Manager.API.Repository;
 
 namespace User.Manager.API
 {
@@ -15,6 +16,10 @@ namespace User.Manager.API
         {
             var builder = WebApplication.CreateBuilder(args);
             var configuration = builder.Configuration;
+
+            //Dependecy Injection 
+
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
             // Add services to the container.
             //DB Context Connectionstring 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
