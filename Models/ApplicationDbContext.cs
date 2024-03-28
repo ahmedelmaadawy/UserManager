@@ -21,6 +21,7 @@ namespace User.Manager.API.Models
                     new IdentityRole() { Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "ADMIN" },
                     new IdentityRole() { Name = "User", ConcurrencyStamp = "2", NormalizedName = "USER" }
                 );
+
         }
         public DbSet<Product> Products { get; set; }
         //wishlist tables

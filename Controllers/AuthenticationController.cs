@@ -29,11 +29,12 @@ namespace User.Manager.API.Controllers
         {
             if (registerUser == null || role == null)
                 return BadRequest();
+
             //Checking if user exists in database
             var checkUser = await _userManager.FindByEmailAsync(registerUser.Email);
             if (checkUser != null)
             {
-                return StatusCode(StatusCodes.Status403Forbidden, "User already exists");
+                return StatusCode(StatusCodes.Status403Forbidden, "Email already exists");
             }
             IdentityUser user = new()
             {
@@ -42,6 +43,7 @@ namespace User.Manager.API.Controllers
                 UserName = registerUser.Username
             };
             //add user to db
+            //admin - user 
             if (await _roleManager.RoleExistsAsync(role))
             {
                 var result = await _userManager.CreateAsync(user, registerUser.Password);
@@ -71,15 +73,20 @@ namespace User.Manager.API.Controllers
         {
             //Check if user exists in db
             var user = await _userManager.FindByNameAsync(loginModel.UserName);
+
             //Check if password is correct
             if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password))
             {
-                var userrole = _userManager.GetRolesAsync(user);
+                var userrole = await _userManager.GetRolesAsync(user);
+
+
                 //claimlist creation
                 var authenticationClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim("uid",user.Id),
+                    new Claim(ClaimTypes.Email,user.Email),
+                    //global user id unique
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
                 var userRoles = await _userManager.GetRolesAsync(user);
@@ -88,13 +95,17 @@ namespace User.Manager.API.Controllers
                 {
                     authenticationClaims.Add(new Claim(ClaimTypes.Role, role));
                 }
+
                 //Generate the token with claims 
                 var jwtToken = GetToken(authenticationClaims);
+
                 //return the token
                 return Ok(new
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
+                    validfrom = jwtToken.ValidFrom,
                     expiration = jwtToken.ValidTo
+
                 });
             }
             return Unauthorized();
@@ -103,6 +114,7 @@ namespace User.Manager.API.Controllers
         private JwtSecurityToken GetToken(List<Claim> authenticationClaims)
         {
             var authenticationSigninKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+
             var Token = new JwtSecurityToken(
                     issuer: _configuration["JWT:ValidIssuer"],
                     audience: _configuration["JWT:ValidAudience"],

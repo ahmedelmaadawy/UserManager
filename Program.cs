@@ -17,6 +17,8 @@ namespace User.Manager.API
         {
             var builder = WebApplication.CreateBuilder(args);
             var configuration = builder.Configuration;
+
+
             builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
             //Dependecy Injection 
@@ -24,6 +26,7 @@ namespace User.Manager.API
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             // Add services to the container.
             //DB Context Connectionstring 
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             //For Identity
@@ -40,9 +43,11 @@ namespace User.Manager.API
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
             }).AddJwtBearer(options =>
             {
-                // instructs the middleware to save the token in the authentication properties after a successful authentication.
+                // instructs the middleware to save the token in the
+                // authentication properties after a successful authentication.
                 options.SaveToken = true;
                 //allows the use of HTTP (non-HTTPS) requests for token validation. 
                 options.RequireHttpsMetadata = false;

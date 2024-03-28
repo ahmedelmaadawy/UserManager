@@ -23,8 +23,9 @@ namespace User.Manager.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToWishlist([FromBody] WishlistitemDto item)
         {
-            string username = User.FindFirst(ClaimTypes.Name)?.Value!;
-            var user = await _userManager.FindByNameAsync(username);
+            string username = User.FindFirst(ClaimTypes.Email)?.Value!;
+            var user = await _userManager.FindByEmailAsync(username);
+
             if (item is null)
             {
                 return BadRequest("Wishlist item is null");
