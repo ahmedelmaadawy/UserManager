@@ -8,6 +8,8 @@ using System.Text;
 using System.Text.Json.Serialization;
 using User.Manager.API.Models;
 using User.Manager.API.Repository;
+using UserManagement.Service.Models;
+using UserManagement.Service.Services;
 
 namespace User.Manager.API
 {
@@ -34,6 +36,13 @@ namespace User.Manager.API
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+            //forgetpassword
+            builder.Services.Configure<IdentityOptions>(
+                opt => opt.SignIn.RequireConfirmedEmail = true
+            );
+            builder.Services.Configure<DataProtectionTokenProviderOptions>(
+                opt => opt.TokenLifespan = TimeSpan.FromHours(10)
+                );
 
             //For Authentication
             builder.Services.AddAuthentication(options =>
@@ -60,6 +69,14 @@ namespace User.Manager.API
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
                 };
             });
+
+            //add email configuration
+            var emailConfig = configuration
+                .GetSection("EmailConfiguration")
+                .Get<EmailConfiguration>();
+
+            builder.Services.AddSingleton(emailConfig);
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

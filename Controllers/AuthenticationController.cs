@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using User.Manager.API.Models;
 using User.Manager.API.Models.Authentication.Login;
 using User.Manager.API.Models.Authentication.SignUp;
+using UserManagement.Service.Models;
+using UserManagement.Service.Services;
 
 namespace User.Manager.API.Controllers
 {
@@ -16,12 +20,15 @@ namespace User.Manager.API.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AuthenticationController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AuthenticationController(UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService)
         {
             _configuration = configuration;
             _userManager = userManager;
             _roleManager = roleManager;
+            _emailService = emailService;
         }
 
         [HttpPost]
@@ -123,6 +130,59 @@ namespace User.Manager.API.Controllers
                     signingCredentials: new SigningCredentials(authenticationSigninKey, SecurityAlgorithms.HmacSha256)
                 );
             return Token;
+        }
+
+        [HttpPost("ForgetPassword")]
+        public async Task<IActionResult> ForgotPassword([Required] string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var forgotpasswordlink = Url.Action(nameof(ResetPassword), "Authentication", new { token, email = user.Email }, Request.Scheme);
+                var message = new Message(new string[] { user.Email! }, "Confirmation email link", forgotpasswordlink!);
+                _emailService.SendEmail(message);
+
+                return StatusCode(StatusCodes.Status200OK,
+
+                        new Response { Status = "success", Message = $"PasswordChaged to email {user.Email}" });
+            }
+            return StatusCode(StatusCodes.Status400BadRequest);
+        }
+
+
+        [HttpGet("Resetpassword")]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            var model = new ResetPasswordModel { Token = token, Email = email };
+            return Ok(new
+            {
+                model
+            });
+
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel resetPasswordModel)
+        {
+            var user = await _userManager.FindByEmailAsync(resetPasswordModel.Email);
+            if (user != null)
+            {
+                var resetpasswordResult = await _userManager.ResetPasswordAsync(user, resetPasswordModel.Token, resetPasswordModel.Password);
+                if (!resetpasswordResult.Succeeded)
+                {
+                    foreach (var error in resetpasswordResult.Errors)
+                    {
+                        ModelState.AddModelError(error.Code, error.Description);
+                    }
+                    return Ok(ModelState);
+                }
+
+                return StatusCode(StatusCodes.Status200OK,
+
+                        new Response { Status = "success", Message = $"Password Changed for email {user.Email}" });
+            }
+            return StatusCode(StatusCodes.Status400BadRequest, "Password didnt change server error");
         }
     }
 }

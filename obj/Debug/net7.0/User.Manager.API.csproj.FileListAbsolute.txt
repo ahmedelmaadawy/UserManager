@@ -81,3 +81,9 @@ E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\Microsoft.AspNetCore.Identity
 E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\Microsoft.Extensions.Identity.Core.dll
 E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\Microsoft.Extensions.Identity.Stores.dll
 E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\Microsoft.Extensions.Options.dll
+E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\MailKit.dll
+E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\MimeKit.dll
+E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\NETCore.MailKit.dll
+E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\BouncyCastle.Crypto.dll
+E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\UserManagement.Service.dll
+E:\Coding\CSharp\User.Manager.API\bin\Debug\net7.0\UserManagement.Service.pdb
